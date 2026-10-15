@@ -88,7 +88,7 @@
   <tr>
     <td>
       <h3>Tek numara da olur, bütün bir blok da.</h3>
-      <p><code>0532 123 45 67</code> gibi tek bir numarayı ya da <code>0850 222 XX XX</code> gibi <b>10.000 numaralık</b> bir aralığı tek satırda engelle. Rehberden ya da panodan toplu ekle.</p>
+      <p><code>0532 123 45 67</code> gibi tek bir numarayı ya da <code>0850 222 XX XX</code> gibi <b>10.000 numaralık</b> bir aralığı tek satırda engelle. Panodan toplu ekle.</p>
       <p>Numaralara kendi etiketini ver; aradıklarında ekranda “Tele-satış” yazsın, telefon yine çalsın.</p>
       <p>Kapasite halkası, iPhone'un kaldırabileceği <b>1.000.000</b> numaralık sınıra ne kadar yaklaştığını gösterir — Kalkan bu sınırı aşmana izin vermez.</p>
     </td>
