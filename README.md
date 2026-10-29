@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="Yakında App Store'da" src="https://img.shields.io/badge/App%20Store-yak%C4%B1nda-111?logo=apple&logoColor=white&style=for-the-badge">
+  <a href="https://apps.apple.com/tr/app/id6822896067"><img alt="App Store'dan indir" src="https://img.shields.io/badge/App%20Store-indir-111?logo=apple&logoColor=white&style=for-the-badge"></a>
   <img alt="Ücretsiz" src="https://img.shields.io/badge/fiyat-%C3%BCcretsiz-3df2b5?style=for-the-badge&labelColor=111">
   <img alt="Veri toplanmaz" src="https://img.shields.io/badge/gizlilik-veri%20toplanmaz-7c5cff?style=for-the-badge&labelColor=111">
 </p>
