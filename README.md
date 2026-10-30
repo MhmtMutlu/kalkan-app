@@ -18,7 +18,7 @@
 <p align="center">
   <a href="https://mhmtmutlu.github.io/kalkan-app/privacy.html">Gizlilik Politikası</a> ·
   <a href="https://mhmtmutlu.github.io/kalkan-app/support.html">Destek</a> ·
-  <a href="mailto:apps.support.mm@gmail.com">İletişim</a>
+  <a href="mailto:destek@mm-apps.com">İletişim</a>
 </p>
 
 <br>
@@ -213,6 +213,6 @@ bir akış olarak verir:
   <b>Kalkan</b> · iPhone için ücretsiz SMS ve arama filtresi<br>
   <a href="https://mhmtmutlu.github.io/kalkan-app/privacy.html">Gizlilik</a> ·
   <a href="https://mhmtmutlu.github.io/kalkan-app/support.html">Destek</a> ·
-  <a href="mailto:apps.support.mm@gmail.com">apps.support.mm@gmail.com</a><br>
+  <a href="mailto:destek@mm-apps.com">destek@mm-apps.com</a><br>
   <sub>© 2026 Mehmet Mutlu. Tüm hakları saklıdır. iPhone ve iOS, Apple Inc.'in ticari markalarıdır.</sub>
 </p>
