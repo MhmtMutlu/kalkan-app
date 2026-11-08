@@ -2,7 +2,7 @@
   <img src="assets/hero.png" alt="Kalkan — istenmeyen SMS ve aramalara cihaz içinde, ücretsiz son" width="100%">
 </p>
 
-<h3 align="center">Spam'i susturan, seni dinlemeyen kalkan.</h3>
+<h3 align="center">Spam'i susturan, seni izlemeyen kalkan.</h3>
 
 <p align="center">
   Kalkan; bahis, dolandırıcılık ve reklam mesajlarını iPhone'unun içinde ayıklar,<br>
@@ -16,7 +16,9 @@
 </p>
 
 <p align="center">
+  <a href="https://kalkan.mm-apps.com/">Web sitesi</a> ·
   <a href="https://kalkan.mm-apps.com/privacy.html">Gizlilik Politikası</a> ·
+  <a href="https://kalkan.mm-apps.com/kvkk.html">KVKK</a> ·
   <a href="https://kalkan.mm-apps.com/support.html">Destek</a> ·
   <a href="mailto:destek@mm-apps.com">İletişim</a>
 </p>
