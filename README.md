@@ -16,8 +16,8 @@
 </p>
 
 <p align="center">
-  <a href="https://mhmtmutlu.github.io/kalkan-app/privacy.html">Gizlilik Politikası</a> ·
-  <a href="https://mhmtmutlu.github.io/kalkan-app/support.html">Destek</a> ·
+  <a href="https://kalkan.mm-apps.com/privacy.html">Gizlilik Politikası</a> ·
+  <a href="https://kalkan.mm-apps.com/support.html">Destek</a> ·
   <a href="mailto:destek@mm-apps.com">İletişim</a>
 </p>
 
@@ -137,7 +137,7 @@ flowchart LR
   </tr>
 </table>
 
-<p align="center">App Store gizlilik etiketi: <b>Veri Toplanmaz</b> · <a href="https://mhmtmutlu.github.io/kalkan-app/privacy.html">Gizlilik politikasının tamamı</a></p>
+<p align="center">App Store gizlilik etiketi: <b>Veri Toplanmaz</b> · <a href="https://kalkan.mm-apps.com/privacy.html">Gizlilik politikasının tamamı</a></p>
 
 ## Teknik bakış
 
@@ -211,8 +211,8 @@ bir akış olarak verir:
 
 <p align="center">
   <b>Kalkan</b> · iPhone için ücretsiz SMS ve arama filtresi<br>
-  <a href="https://mhmtmutlu.github.io/kalkan-app/privacy.html">Gizlilik</a> ·
-  <a href="https://mhmtmutlu.github.io/kalkan-app/support.html">Destek</a> ·
+  <a href="https://kalkan.mm-apps.com/privacy.html">Gizlilik</a> ·
+  <a href="https://kalkan.mm-apps.com/support.html">Destek</a> ·
   <a href="mailto:destek@mm-apps.com">destek@mm-apps.com</a><br>
   <sub>© 2026 Mehmet Mutlu. Tüm hakları saklıdır. iPhone ve iOS, Apple Inc.'in ticari markalarıdır.</sub>
 </p>

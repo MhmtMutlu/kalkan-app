@@ -2,31 +2,887 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kalkan · SMS ve arama filtresi</title>
-<meta name="description" content="Kalkan istenmeyen SMS ve aramaları iPhone'unda, hiçbir veri toplamadan ayıklar.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kalkan · Spam SMS ve arama filtresi, tamamen ücretsiz</title>
+<meta name="description" content="Kalkan; bahis, sahte kargo, sahte HGS ve reklam SMS'lerini iPhone'unun içinde ayıklar. Ücretsiz, reklamsız, hesapsız. Mesajların telefonundan çıkmaz.">
+<meta name="theme-color" content="#0a0f21">
+<meta name="color-scheme" content="dark">
+<meta property="og:title" content="Kalkan · Spam SMS ve arama filtresi">
+<meta property="og:description" content="Ücretsiz, reklamsız, hesapsız. Spam SMS'ler iPhone'unda ayıklanır; mesajların telefonundan çıkmaz.">
+<meta property="og:image" content="https://kalkan.mm-apps.com/assets/hero.png">
+<meta property="og:url" content="https://kalkan.mm-apps.com/">
+<link rel="canonical" href="https://kalkan.mm-apps.com/">
+<meta property="og:type" content="website">
+<meta name="apple-itunes-app" content="app-id=6822896067">
+<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
 <style>
-  :root { --bg:#f4f4fb; --fg:#14162a; --muted:#55576b; --accent:#5c3ddb; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0a0f21; --fg:#eef0ff; --muted:#a6a9c2; --accent:#9e87ff; } }
-  body { margin:0; background:var(--bg); color:var(--fg); font:17px/1.6 -apple-system, system-ui, sans-serif; }
-  main { max-width:720px; margin:0 auto; padding:56px 20px 64px; text-align:center; }
-  img { width:112px; height:112px; border-radius:25px; }
-  h1 { font-size:34px; margin:16px 0 4px; } p { color:var(--muted); }
-  nav { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:28px; }
-  nav a { color:var(--accent); text-decoration:none; padding:10px 18px; border-radius:999px;
-          border:1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+  :root {
+    --ink: #0a0f21;
+    --fg: #eef0ff;
+    --muted: #a6a9c2;
+    --faint: #7c809e;
+    --line: rgba(255, 255, 255, .09);
+    --glass: rgba(255, 255, 255, .055);
+    --glass-2: rgba(255, 255, 255, .09);
+    --mint: #3df2b5;
+    --sky: #5cb3ff;
+    --violet: #9e87ff;
+    --amber: #ffb547;
+    --coral: #ff7385;
+    --radius: 26px;
+    --max: 1180px;
+    --rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--ink); color: var(--fg);
+    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+  :focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; border-radius: 10px; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+
+  /* Backdrop: the app's breathing mesh, as slow drifting glows. */
+  .backdrop { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .backdrop i { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .5; animation: drift 28s ease-in-out infinite alternate; }
+  .backdrop i:nth-child(1) { width: 60vw; height: 60vw; left: -15vw; top: -20vw; background: #2a1f6e; }
+  .backdrop i:nth-child(2) { width: 45vw; height: 45vw; right: -10vw; top: 10vh; background: #0f3d4a; animation-duration: 34s; }
+  .backdrop i:nth-child(3) { width: 50vw; height: 50vw; left: 20vw; bottom: -25vw; background: #2b1240; animation-duration: 40s; }
+  @keyframes drift { to { transform: translate(6vw, 4vh) scale(1.12); } }
+
+  /* Navigation */
+  header.nav { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    background: rgba(10, 15, 33, .62); border-bottom: 1px solid var(--line); }
+  .nav .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 19px var(--rounded); }
+  .brand img { width: 32px; height: 32px; border-radius: 8px; }
+  .nav nav { display: flex; gap: 22px; margin-left: auto; }
+  .nav nav a { text-decoration: none; color: var(--muted); font-size: 15px; transition: color .2s; }
+  .nav nav a:hover { color: var(--fg); }
+  @media (max-width: 860px) { .nav nav { display: none; } .nav .cta-sm { margin-left: auto; } }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; cursor: pointer;
+    font: 600 17px var(--rounded); border-radius: 999px; padding: 15px 26px; border: 0; transition: transform .2s, box-shadow .2s, background .2s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-store { background: var(--fg); color: var(--ink); box-shadow: 0 10px 40px -10px rgba(61, 242, 181, .55); }
+  .btn-store:hover { box-shadow: 0 16px 50px -10px rgba(61, 242, 181, .8); }
+  .btn-store svg { width: 22px; height: 22px; }
+  .btn-store small { display: block; font: 500 11px/1 -apple-system, system-ui, sans-serif; opacity: .7; letter-spacing: .02em; }
+  .btn-store span { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
+  .btn-ghost { background: var(--glass); color: var(--fg); border: 1px solid var(--line); }
+  .cta-sm { padding: 9px 16px; font-size: 14px; background: var(--fg); color: var(--ink); }
+
+  /* Hero */
+  .hero { padding: 72px 0 40px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.08fr .92fr; gap: 48px; align-items: center; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; font-size: 14px; font-weight: 600;
+    background: rgba(61, 242, 181, .1); color: var(--mint); border: 1px solid rgba(61, 242, 181, .25); }
+  .eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 12px var(--mint); animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  h1 { font: 800 clamp(42px, 6.4vw, 76px)/1.02 var(--rounded); letter-spacing: -.035em; margin: 22px 0 20px; }
+  h1 .grad { background: linear-gradient(100deg, var(--mint), var(--sky) 45%, var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { font-size: clamp(18px, 2vw, 21px); color: var(--muted); max-width: 34em; margin: 0 0 30px; }
+  .lede b { color: var(--fg); font-weight: 600; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 28px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 15px; }
+  .facts li { display: flex; align-items: center; gap: 7px; }
+  .facts svg { width: 17px; height: 17px; color: var(--mint); flex: none; }
+  @media (max-width: 940px) { .hero .wrap { grid-template-columns: 1fr; } .hero { padding-top: 44px; } }
+
+  /* Live phone */
+  .stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .stage::before { content: ""; position: absolute; inset: 8% 10%; background: radial-gradient(closest-side, rgba(158, 135, 255, .45), transparent); filter: blur(30px); z-index: -1; }
+  .phone { width: min(340px, 86vw); aspect-ratio: 9 / 18.6; border-radius: 52px; padding: 12px; position: relative;
+    background: linear-gradient(145deg, #2a2f48, #0d1124 40%, #1c2140); box-shadow: 0 40px 90px -30px rgba(0,0,0,.9), inset 0 0 0 1.5px rgba(255,255,255,.14); }
+  .screen { position: relative; height: 100%; border-radius: 41px; overflow: hidden;
+    background: radial-gradient(120% 70% at 50% 30%, #241b55, #0b1024 70%); }
+  .island { position: absolute; top: 11px; left: 50%; translate: -50% 0; width: 96px; height: 28px; border-radius: 20px; background: #000; z-index: 3; }
+  .statusbar { display: flex; justify-content: space-between; padding: 14px 26px 0; font: 600 14px var(--rounded); }
+  .screen-title { text-align: center; font: 700 15px var(--rounded); margin-top: 22px; color: var(--fg); }
+  .screen-sub { text-align: center; font-size: 12px; color: var(--faint); margin-bottom: 12px; }
+  .feed { position: absolute; left: 12px; right: 12px; top: 102px; bottom: 12px; display: flex; flex-direction: column; gap: 9px; }
+  .msg { position: relative; border-radius: 18px; padding: 11px 13px 12px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08);
+    overflow: hidden; animation: msgIn .55s cubic-bezier(.2,.9,.3,1.2) both; transition: border-color .4s, background .4s; }
+  .msg.leaving { animation: msgOut .5s ease forwards; }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(-24px) scale(.96); } }
+  @keyframes msgOut { to { opacity: 0; transform: translateY(20px) scale(.94); } }
+  .msg .from { font: 600 12px var(--rounded); color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+  .msg .text { font-size: 13px; line-height: 1.38; margin-top: 3px; color: var(--fg); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .msg .scan { position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(61,242,181,.28), transparent); transform: translateX(-100%); animation: scan .9s ease .35s; }
+  @keyframes scan { to { transform: translateX(100%); } }
+  .verdict { display: inline-flex; align-items: center; font: 700 11px var(--rounded); padding: 3px 9px; border-radius: 999px; color: var(--ink); background: var(--c);
+    opacity: 0; transform: scale(.6); transition: opacity .3s, transform .35s cubic-bezier(.2,.9,.3,1.4); white-space: nowrap; }
+  .msg.done .verdict { opacity: 1; transform: none; }
+  .msg.done { border-color: color-mix(in srgb, var(--c) 40%, transparent); background: color-mix(in srgb, var(--c) 9%, rgba(255,255,255,.04)); }
+  .folders { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: min(420px, 94vw); }
+  .folder { border-radius: 16px; padding: 10px 6px; text-align: center; background: var(--glass); border: 1px solid var(--line); transition: transform .3s, border-color .3s; }
+  .folder b { display: block; font: 800 22px var(--rounded); color: var(--c); font-variant-numeric: tabular-nums; }
+  .folder span { font-size: 11.5px; color: var(--muted); }
+  .folder.bump { transform: translateY(-4px) scale(1.04); border-color: var(--c); }
+  .stage-note { font-size: 12.5px; color: var(--faint); text-align: center; max-width: 420px; margin: 0; }
+
+  /* Ticker */
+  .ticker { border-block: 1px solid var(--line); background: rgba(255,255,255,.025); overflow: hidden; margin: 40px 0 0; }
+  .ticker ul { display: flex; gap: 46px; width: max-content; margin: 0; padding: 16px 0; list-style: none; animation: tick 38s linear infinite; }
+  .ticker li { font: 700 17px var(--rounded); color: var(--muted); white-space: nowrap; display: flex; align-items: center; gap: 46px; }
+  .ticker li::after { content: "✦"; color: var(--violet); font-size: 12px; }
+  @keyframes tick { to { transform: translateX(-50%); } }
+
+  /* Sections */
+  section { padding: 110px 0 0; scroll-margin-top: 60px; }
+  .kicker { font: 700 14px var(--rounded); letter-spacing: .08em; text-transform: uppercase; color: var(--c, var(--violet)); }
+  h2 { font: 800 clamp(32px, 4.6vw, 54px)/1.06 var(--rounded); letter-spacing: -.03em; margin: 12px 0 16px; }
+  .section-lede { color: var(--muted); font-size: 19px; max-width: 40em; margin: 0 0 44px; }
+  .section-lede b { color: var(--fg); }
+  .glass { background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+
+  /* Inspector */
+  .inspector { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+  .samples { display: flex; flex-direction: column; gap: 8px; }
+  .sample { text-align: left; font: inherit; color: var(--fg); cursor: pointer; padding: 12px 16px; border-radius: 18px;
+    background: var(--glass); border: 1px solid var(--line); transition: background .2s, border-color .2s, transform .2s; display: flex; gap: 12px; align-items: center; }
+  .sample:hover { background: var(--glass-2); transform: translateX(3px); }
+  .sample[aria-pressed="true"] { border-color: color-mix(in srgb, var(--c) 70%, transparent); background: color-mix(in srgb, var(--c) 12%, transparent); }
+  .sample .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; box-shadow: 0 0 10px var(--c); }
+  .sample b { font: 600 15px var(--rounded); display: block; }
+  .sample small { color: var(--faint); font-size: 12.5px; }
+  .result { padding: 26px; display: flex; flex-direction: column; gap: 18px; min-height: 560px; transition: border-color .4s; border-color: color-mix(in srgb, var(--c) 35%, var(--line)); }
+  .bubble { align-self: flex-start; max-width: 100%; background: rgba(255,255,255,.08); border-radius: 22px 22px 22px 6px; padding: 14px 18px; }
+  .bubble .from { font: 600 13px var(--rounded); color: var(--muted); margin-bottom: 2px; }
+  .bubble p { margin: 0; font-size: 16px; overflow-wrap: anywhere; }
+  .decision { display: flex; align-items: center; gap: 18px; }
+  .decision .badge { width: 66px; height: 66px; border-radius: 50%; display: grid; place-items: center; flex: none;
+    background: color-mix(in srgb, var(--c) 18%, transparent); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); color: var(--c); }
+  .decision .badge svg { width: 32px; height: 32px; }
+  .decision small { color: var(--muted); font-size: 13px; }
+  .decision h3 { margin: 0; font: 800 34px/1.1 var(--rounded); }
+  .decision em { font-style: normal; color: var(--c); font-weight: 600; font-size: 15px; }
+  .bars { display: grid; gap: 12px; }
+  .bar-head { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+  .bar-head span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 500; }
+  .track { position: relative; height: 9px; border-radius: 9px; background: rgba(255,255,255,.08); }
+  .fill { position: absolute; inset: 0 auto 0 0; border-radius: 9px; background: var(--bc); width: 0; transition: width .9s cubic-bezier(.2,.8,.2,1); }
+  .mark { position: absolute; top: -4px; bottom: -4px; width: 2px; background: rgba(255,255,255,.75); border-radius: 2px; }
+  .reasons h4 { margin: 0 0 10px; font: 700 13px var(--rounded); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .reasons ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .reasons li { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 16px; background: rgba(255,255,255,.05); animation: reasonIn .45s both; }
+  .reasons li:nth-child(2) { animation-delay: .08s; } .reasons li:nth-child(3) { animation-delay: .16s; }
+  .reasons li:nth-child(4) { animation-delay: .24s; } .reasons li:nth-child(5) { animation-delay: .32s; }
+  @keyframes reasonIn { from { opacity: 0; transform: translateY(8px); } }
+  .reasons .t { flex: 1; min-width: 0; }
+  .reasons .t b { display: block; font-size: 15px; font-weight: 600; }
+  .reasons .t small { color: var(--faint); font-size: 12.5px; overflow-wrap: anywhere; }
+  .reasons .w { font: 800 15px var(--rounded); color: var(--rc); font-variant-numeric: tabular-nums; }
+  .reasons .ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: none; background: color-mix(in srgb, var(--rc) 20%, transparent); color: var(--rc); }
+  .reasons .ico svg { width: 17px; height: 17px; }
+  .result-note { font-size: 13px; color: var(--faint); margin: auto 0 0; }
+  @media (max-width: 900px) {
+    .inspector { grid-template-columns: 1fr; }
+    .samples { flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -20px; padding: 0 20px 6px; scroll-padding-inline: 20px; scrollbar-width: none; }
+    .samples::-webkit-scrollbar { display: none; }
+    .sample { flex: none; scroll-snap-align: start; }
+    .sample:hover { transform: none; }
+    .result { min-height: 0; padding: 20px; }
+  }
+
+  /* Decode */
+  .decode { padding: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+  .decode .lines { font: 600 clamp(20px, 2.6vw, 30px)/1.5 ui-monospace, "SF Mono", Menlo, monospace; display: grid; gap: 10px; }
+  .decode .in { color: var(--coral); }
+  .decode .out { color: var(--mint); }
+  .decode .arrow { color: var(--faint); font-size: .6em; font-family: var(--rounded); }
+  .decode ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; color: var(--muted); }
+  .decode li b { color: var(--fg); }
+  @media (max-width: 860px) { .decode { grid-template-columns: 1fr; padding: 26px; gap: 28px; } }
+
+  /* Privacy flow */
+  .flow { display: grid; grid-template-columns: 1fr auto 1.25fr auto 1fr; align-items: center; gap: 14px; padding: 34px; }
+  .node { text-align: center; padding: 20px 14px; border-radius: 22px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+  .node svg { width: 34px; height: 34px; margin: 0 auto 8px; color: var(--c, var(--fg)); display: block; }
+  .node b { display: block; font: 700 16px var(--rounded); }
+  .node small { color: var(--muted); font-size: 13px; }
+  .node.core { border-color: rgba(61,242,181,.4); background: rgba(61,242,181,.07); position: relative; }
+  .node.core::after { content: "iPhone'un içinde"; position: absolute; top: -11px; left: 50%; translate: -50% 0; font: 700 11px var(--rounded);
+    background: var(--mint); color: var(--ink); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .pipe { width: 46px; height: 2px; background: linear-gradient(90deg, transparent, var(--mint), transparent); background-size: 200% 100%; animation: flow 1.6s linear infinite; }
+  @keyframes flow { from { background-position: 200% 0; } to { background-position: 0 0; } }
+  .nocloud { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 18px 0 0; color: var(--muted); font-size: 15px; text-align: center; }
+  .nocloud svg { width: 26px; height: 26px; color: var(--coral); flex: none; }
+  @media (max-width: 860px) { .flow { grid-template-columns: 1fr; padding: 22px; } .pipe { width: 2px; height: 30px; margin: 0 auto; background: linear-gradient(180deg, transparent, var(--mint), transparent); } .nocloud { text-align: left; } }
+  .pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 16px; }
+  .pillar { padding: 22px; }
+  .pillar svg { width: 28px; height: 28px; color: var(--mint); }
+  .pillar b { display: block; font: 700 18px var(--rounded); margin: 12px 0 4px; }
+  .pillar p { margin: 0; color: var(--muted); font-size: 15px; }
+  @media (max-width: 900px) { .pillars { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .pillars { grid-template-columns: 1fr; } }
+  .label-card { display: flex; align-items: center; gap: 16px; margin-top: 14px; padding: 18px 22px; flex-wrap: wrap; }
+  .label-card svg { width: 30px; height: 30px; color: var(--sky); flex: none; }
+  .label-card div { flex: 1; min-width: 220px; }
+  .label-card b { font: 700 17px var(--rounded); }
+  .label-card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+  .label-card a { color: var(--sky); font-weight: 600; font-size: 15px; }
+
+  /* Bento */
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+  .tile { padding: 26px; position: relative; overflow: hidden; }
+  .tile h3 { font: 700 22px/1.2 var(--rounded); margin: 14px 0 8px; letter-spacing: -.01em; }
+  .tile p { margin: 0; color: var(--muted); font-size: 15.5px; }
+  .tile p b { color: var(--fg); }
+  .tile .ic { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 18%, transparent); color: var(--c); }
+  .tile .ic svg { width: 24px; height: 24px; }
+  .tile::after { content: ""; position: absolute; width: 220px; height: 220px; right: -80px; top: -80px; border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 28%, transparent), transparent); pointer-events: none; }
+  .span-2 { grid-column: span 2; } .span-3 { grid-column: span 3; } .span-4 { grid-column: span 4; }
+  @media (max-width: 960px) { .bento { grid-template-columns: 1fr 1fr; } .span-2, .span-3, .span-4 { grid-column: span 1; } .wide-m { grid-column: span 2; } }
+  @media (max-width: 600px) { .bento { grid-template-columns: 1fr; } .wide-m { grid-column: span 1; } }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+  .chip { font: 600 13px var(--rounded); padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--line); }
+  .chip.c { color: var(--c); border-color: color-mix(in srgb, var(--c) 40%, transparent); background: color-mix(in srgb, var(--c) 10%, transparent); }
+  .safe-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+  .safe-list span { display: flex; align-items: center; gap: 8px; font-size: 14.5px; padding: 9px 12px; border-radius: 12px; background: rgba(92,179,255,.08); }
+  .safe-list svg { width: 16px; height: 16px; color: var(--sky); flex: none; }
+  @media (max-width: 420px) { .safe-list { grid-template-columns: 1fr; } }
+  .ring { display: flex; align-items: center; gap: 18px; margin-top: 18px; }
+  .ring svg { width: 74px; height: 74px; flex: none; }
+  .ring b { font: 800 26px var(--rounded); display: block; }
+  .ring small { color: var(--muted); font-size: 13px; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .92em; }
+
+  /* Screens */
+  .screens { display: flex; gap: 22px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 10px 20px 30px; margin: 0 -20px; scroll-padding-inline: 20px; scrollbar-width: none; }
+  .screens::-webkit-scrollbar { display: none; }
+  .shot { flex: none; width: 250px; scroll-snap-align: center; text-align: center; margin: 0; }
+  .shot .frame { border-radius: 40px; padding: 9px; background: linear-gradient(145deg, #2a2f48, #0d1124 40%, #1c2140);
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,.9), inset 0 0 0 1.5px rgba(255,255,255,.12); transition: transform .35s; }
+  .shot:hover .frame { transform: translateY(-8px) rotate(-1deg); }
+  .shot img { border-radius: 32px; width: 100%; height: auto; aspect-ratio: 506 / 1100; background: #12162c; }
+  .shot figcaption b { display: block; font: 700 16px var(--rounded); margin-top: 16px; }
+  .shot figcaption small { color: var(--muted); font-size: 14px; }
+  .scroll-hint { display: flex; justify-content: flex-end; gap: 8px; margin-top: -14px; }
+  .scroll-hint button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--glass); color: var(--fg); cursor: pointer; font-size: 18px; }
+  .scroll-hint button:hover { background: var(--glass-2); }
+
+  /* Free */
+  .free { text-align: center; padding: 70px 30px; position: relative; overflow: hidden; }
+  .free::before { content: ""; position: absolute; inset: -40% -10% auto; height: 120%; background: radial-gradient(closest-side, rgba(61,242,181,.18), transparent); pointer-events: none; }
+  .free .price { font: 900 clamp(84px, 15vw, 170px)/.9 var(--rounded); letter-spacing: -.05em;
+    background: linear-gradient(180deg, #fff, rgba(255,255,255,.35)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .free .price sup { font-size: .35em; vertical-align: top; position: relative; top: .35em; margin-left: .05em; }
+  .free h2 { margin-top: 18px; position: relative; }
+  .free p { color: var(--muted); max-width: 36em; margin: 0 auto; font-size: 18px; position: relative; }
+  .free .chips { justify-content: center; margin-top: 26px; position: relative; }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; counter-reset: s; }
+  .step { padding: 26px; counter-increment: s; }
+  .step::before { content: counter(s); display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; font: 800 18px var(--rounded); background: var(--fg); color: var(--ink); }
+  .step h3 { font: 700 20px var(--rounded); margin: 16px 0 6px; }
+  .step p { margin: 0; color: var(--muted); font-size: 15.5px; }
+  .step p b { color: var(--fg); }
+  .path { display: inline-block; margin-top: 10px; font-size: 13.5px; color: var(--fg); background: rgba(255,255,255,.07); padding: 6px 10px; border-radius: 10px; }
+  @media (max-width: 860px) { .steps { grid-template-columns: 1fr; } }
+
+  /* FAQ */
+  .faq { display: grid; gap: 10px; max-width: 860px; }
+  .faq details { padding: 0 24px; border-radius: 20px; }
+  .faq summary { cursor: pointer; list-style: none; padding: 20px 0; font: 600 17px var(--rounded); display: flex; justify-content: space-between; gap: 16px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font-size: 24px; line-height: 1; color: var(--muted); transition: transform .25s; }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq details p { margin: 0 0 20px; color: var(--muted); }
+  .faq details p b { color: var(--fg); }
+
+  /* Final */
+  .final { text-align: center; padding: 120px 0 80px; }
+  .final img { width: 104px; height: 104px; border-radius: 24px; margin: 0 auto 26px; box-shadow: 0 20px 60px -10px rgba(61,242,181,.5); }
+  .final p { color: var(--muted); font-size: 19px; margin: 0 auto 30px; max-width: 30em; }
+  .en { color: var(--faint); font-size: 14px; max-width: 46em; margin: 0 auto; text-align: center; padding: 0 20px 34px; }
+  .en a { color: var(--muted); }
+  footer { border-top: 1px solid var(--line); padding: 30px 0 calc(40px + env(safe-area-inset-bottom)); color: var(--faint); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; justify-content: space-between; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 20px; }
+  footer a { color: var(--muted); text-decoration: none; } footer a:hover { color: var(--fg); }
+
+  /* Reveal on scroll (only when JS runs, so content never stays hidden). */
+  .js .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+  .js .reveal.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    .js .reveal { opacity: 1; transform: none; }
+  }
 </style>
+<script>document.documentElement.classList.add("js");</script>
 </head>
 <body>
-<main>
-  <img src="icon.png" alt="Kalkan simgesi">
-  <h1>Kalkan</h1>
-  <p>İstenmeyen SMS ve aramaları iPhone'unda, hiçbir veri toplamadan ayıklar.</p>
-  <p lang="en">Sorts unwanted texts and calls on your iPhone, with no data collected.</p>
-  <nav>
-    <a href="privacy.html">Gizlilik Politikası · Privacy</a>
-    <a href="support.html">Destek · Support</a>
-  </nav>
+<div class="backdrop" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<!-- Icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.2l8 3v6.1c0 5-3.4 9.3-8 10.5-4.6-1.2-8-5.5-8-10.5V5.2l8-3z" opacity=".25"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 2.2l8 3v6.1c0 5-3.4 9.3-8 10.5-4.6-1.2-8-5.5-8-10.5V5.2l8-3z"/><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M8.3 12.2l2.6 2.6 4.9-5.1"/></symbol>
+  <symbol id="i-bin" viewBox="0 0 24 24"><path fill="currentColor" d="M4 6.5h16l-1.3 12.6A2 2 0 0 1 16.7 21H7.3a2 2 0 0 1-2-1.9L4 6.5zm2-3.5h12l1 2H5l1-2z"/><path stroke="#0a0f21" stroke-width="2" stroke-linecap="round" d="M9.5 11l5 5m0-5l-5 5"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path fill="currentColor" d="M3 4.5A1.5 1.5 0 0 1 4.5 3h6.4a2 2 0 0 1 1.4.6l8.3 8.3a1.8 1.8 0 0 1 0 2.6l-6.3 6.3a1.8 1.8 0 0 1-2.6 0L3.6 12.3a2 2 0 0 1-.6-1.4V4.5z"/><circle cx="7.6" cy="7.6" r="1.7" fill="#0a0f21"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="currentColor"/><path stroke="#0a0f21" stroke-width="2.2" d="M2.5 9.5h19"/><path stroke="#0a0f21" stroke-width="2" stroke-linecap="round" d="M6 15h4"/></symbol>
+  <symbol id="i-tray" viewBox="0 0 24 24"><path fill="currentColor" d="M5.2 4h13.6a2 2 0 0 1 1.9 1.4L23 13v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-5l2.3-7.6A2 2 0 0 1 5.2 4z"/><path fill="#0a0f21" d="M3.4 13h5l1.3 2.5h4.6l1.3-2.5h5l-1.9-6.6H5.3L3.4 13z" opacity=".55"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3" fill="currentColor"/><path fill="none" stroke="currentColor" stroke-width="2.2" d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 2L4 13.5h6.5L9.5 22 20 9.5h-6.5L13.5 2z"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M10 14a4.5 4.5 0 0 0 6.4 0l3.2-3.2a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3.2 3.2a4.5 4.5 0 0 0 6.4 6.4l1-1"/></symbol>
+  <symbol id="i-dice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="currentColor"/><g fill="#0a0f21"><circle cx="8.3" cy="8.3" r="1.6"/><circle cx="15.7" cy="15.7" r="1.6"/><circle cx="12" cy="12" r="1.6"/></g></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path fill="currentColor" d="M10.3 3.3a2 2 0 0 1 3.4 0l8.4 14.6a2 2 0 0 1-1.7 3H3.6a2 2 0 0 1-1.7-3L10.3 3.3z"/><path stroke="#0a0f21" stroke-width="2.2" stroke-linecap="round" d="M12 9v5m0 3.2v.1"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 2.5l2.6-.4 2 4.7-2 1.8a12.4 12.4 0 0 0 6.2 6.2l1.8-2 4.7 2-.4 2.6a3 3 0 0 1-3 2.6C10.4 20 4 13.6 4 5.5a3 3 0 0 1 2.6-3z"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3c5.5 0 10 3.7 10 8.3s-4.5 8.2-10 8.2c-1.1 0-2.2-.1-3.2-.4L4 21l1.3-4C3.3 15.5 2 13.5 2 11.3 2 6.7 6.5 3 12 3z"/></symbol>
+  <symbol id="i-cloud-off" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M7 18.5h10.5a4 4 0 0 0 .6-8 6 6 0 0 0-11.4-1.5A4.8 4.8 0 0 0 7 18.5zM3 3l18 18"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path fill="currentColor" d="M4 20c.8-4 4-6 8-6s7.2 2 8 6H4z" opacity=".6"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12zM3 3l18 18"/><circle cx="12" cy="12" r="3" fill="currentColor"/></symbol>
+  <symbol id="i-slider" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="currentColor"/><circle cx="15" cy="17" r="3" fill="currentColor"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path fill="currentColor" d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path fill="currentColor" d="M9 2.5h6v2h-1v5.2l5.6 9A2 2 0 0 1 17.9 21H6.1a2 2 0 0 1-1.7-3.3l5.6-9V4.5H9v-2z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M12 3.5v11m-4.5-4.5L12 14.5l4.5-4.5M4.5 19.5h15"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M4 20L15 9"/><path fill="currentColor" d="M17 2l1 2.5 2.5 1-2.5 1L17 9l-1-2.5-2.5-1 2.5-1L17 2zM9 3l.6 1.4L11 5l-1.4.6L9 7l-.6-1.4L7 5l1.4-.6L9 3z"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="5" rx="1.5" fill="currentColor"/><rect x="4.5" y="13" width="15" height="8" rx="1.5" fill="currentColor" opacity=".7"/><path stroke="#0a0f21" stroke-width="2" d="M12 8v13"/><path fill="none" stroke="currentColor" stroke-width="2" d="M12 8C10 4 7 4 7 6s5 2 5 2zm0 0c2-4 5-4 5-2s-5 2-5 2z"/></symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="icon.png" alt="" width="32" height="32">Kalkan</a>
+    <nav aria-label="Bölümler">
+      <a href="#karar">Nasıl karar verir?</a>
+      <a href="#gizlilik">Gizlilik</a>
+      <a href="#ozellikler">Özellikler</a>
+      <a href="#kurulum">Kurulum</a>
+      <a href="#sss">SSS</a>
+    </nav>
+    <a class="btn cta-sm" href="https://apps.apple.com/tr/app/id6822896067" rel="noopener">İndir</a>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">Ücretsiz · Reklamsız · Hesapsız</span>
+        <h1>Spam'i susturan,<br><span class="grad">seni dinlemeyen</span> kalkan.</h1>
+        <p class="lede">Kalkan; bahis, sahte kargo, sahte HGS ve reklam SMS'lerini <b>iPhone'unun içinde</b> ayıklar, istemediğin numaraları susturur. Bankandan gelen kodlar ve bildirimler yerinde kalır. <b>Mesajların telefonundan çıkmaz.</b></p>
+        <div class="hero-cta">
+          <a class="btn btn-store" href="https://apps.apple.com/tr/app/id6822896067" rel="noopener">
+            <svg aria-hidden="true"><use href="#i-download"/></svg>
+            <span><small>Ücretsiz</small>App Store'dan indir</span>
+          </a>
+          <a class="btn btn-ghost" href="#karar">Nasıl karar verir?</a>
+        </div>
+        <ul class="facts">
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Veri toplanmaz</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Sunucu ve hesap yok</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Uygulama içi satın alma yok</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>iOS 16 ve sonrası</li>
+        </ul>
+      </div>
+
+      <div class="stage" role="img" aria-label="Canlandırma: gelen mesajlar Gelen, İşlem, Promosyon ve Gereksiz klasörlerine ayrılıyor">
+        <div class="phone" aria-hidden="true">
+          <div class="screen">
+            <div class="island"></div>
+            <div class="statusbar"><span>09:41</span><span>5G</span></div>
+            <div class="screen-title">Bilinmeyen göndericiler</div>
+            <div class="screen-sub">Kalkan her mesajı cihazda değerlendirir</div>
+            <div class="feed" id="feed"></div>
+          </div>
+        </div>
+        <div class="folders" aria-hidden="true">
+          <div class="folder" data-v="allow" style="--c:var(--mint)"><b>0</b><span>Gelen</span></div>
+          <div class="folder" data-v="transaction" style="--c:var(--sky)"><b>0</b><span>İşlem</span></div>
+          <div class="folder" data-v="promotion" style="--c:var(--amber)"><b>0</b><span>Promosyon</span></div>
+          <div class="folder" data-v="junk" style="--c:var(--coral)"><b>0</b><span>Gereksiz</span></div>
+        </div>
+        <p class="stage-note" aria-hidden="true">Örnek mesajların kararları, Kalkan'ın gerçek filtre motorundan alındı.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticker" aria-hidden="true">
+    <ul>
+      <li>Ücretsiz</li><li>Reklam yok</li><li>Hesap yok</li><li>Sunucu yok</li><li>Veri toplanmaz</li><li>Mesajlar telefonda kalır</li><li>Banka kodların korunur</li><li>Her kararın nedeni görünür</li>
+      <li>Ücretsiz</li><li>Reklam yok</li><li>Hesap yok</li><li>Sunucu yok</li><li>Veri toplanmaz</li><li>Mesajlar telefonda kalır</li><li>Banka kodların korunur</li><li>Her kararın nedeni görünür</li>
+    </ul>
+  </div>
+
+  <!-- INSPECTOR -->
+  <section id="karar">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="kicker" style="--c:var(--violet)">Kara kutu yok</span>
+        <h2>Her kararın bir nedeni var.</h2>
+        <p class="section-lede">Bir mesaj seç; Kalkan'ın onu nereye koyduğunu ve her puanın nereden geldiğini gör. Uygulamadaki <b>Test</b> ekranı da tam olarak bunu yapar ve telefonundaki filtreyle aynı motoru kullanır.</p>
+      </div>
+      <div class="inspector reveal">
+        <div class="samples" id="samples" role="group" aria-label="Örnek mesajlar"></div>
+        <div class="result glass" id="result" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DECODE -->
+  <section id="gizlenmis">
+    <div class="wrap">
+      <div class="decode glass reveal">
+        <div>
+          <span class="kicker" style="--c:var(--coral)">Kılık değiştirmiş spam</span>
+          <h2 style="font-size:clamp(28px,3.6vw,42px)">Saklanmaya çalışan mesajı da tanır.</h2>
+          <ul>
+            <li><b>Rakam ve simge hilesi:</b> <span class="mono">k@zand1n1z</span>, <span class="mono">d€n€m€</span> gibi yazımlar düzeltilir.</li>
+            <li><b>Araya boşluk:</b> <span class="mono">b e d a v a</span> tek kelime olarak okunur.</li>
+            <li><b>Görünmez ve süslü karakterler</b> temizlenir; Kiril ya da Yunan harfiyle taklit edilen kelimeler çözülür.</li>
+            <li><b>Kelime sınırları:</b> “sohbet” içindeki “bet” yüzünden kimsenin mesajı spam sayılmaz.</li>
+          </ul>
+        </div>
+        <div class="lines" role="img" aria-label="Örnek: “d€n€m€ b0nusu k@zand1n1z!” yazısı “deneme bonusu kazandiniz” olarak okunur">
+          <span class="in" aria-hidden="true">d€n€m€ b0nusu</span>
+          <span class="in" aria-hidden="true">k@zand1n1z!</span>
+          <span class="arrow" aria-hidden="true">↓ Kalkan böyle okur</span>
+          <span class="out" id="dec1" aria-hidden="true">deneme bonusu</span>
+          <span class="out" id="dec2" aria-hidden="true">kazandiniz</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIVACY -->
+  <section id="gizlilik">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="kicker" style="--c:var(--mint)">Gizlilik</span>
+        <h2>Mesajların telefonundan çıkmaz.</h2>
+        <p class="section-lede">Rehberinde olmayan birinden SMS geldiğinde iOS, mesajı yalnızca karar vermesi için Kalkan'ın filtresine gösterir. Kalkan kararını iPhone'unun içinde verir; mesajı kaydetmez ve hiçbir yere göndermez.</p>
+      </div>
+      <div class="flow glass reveal">
+        <div class="node" style="--c:var(--violet)"><svg aria-hidden="true"><use href="#i-message"/></svg><b>Yeni SMS</b><small>Bilinmeyen gönderici</small></div>
+        <div class="pipe" aria-hidden="true"></div>
+        <div class="node core" style="--c:var(--mint)"><svg aria-hidden="true"><use href="#i-shield"/></svg><b>Kalkan filtresi</b><small>Gönderene ve metne bakar, kararı verir, hiçbir şey saklamaz</small></div>
+        <div class="pipe" aria-hidden="true"></div>
+        <div class="node" style="--c:var(--sky)"><svg aria-hidden="true"><use href="#i-tray"/></svg><b>Doğru klasör</b><small>Gelen · İşlem · Promosyon · Gereksiz</small></div>
+      </div>
+      <p class="nocloud reveal"><svg aria-hidden="true"><use href="#i-cloud-off"/></svg>Kalkan sunucu kullanmaz. Filtre uzantısı internete bağlanmaz; iOS da bu uzantının ağa çıkmasına ve veri yazmasına izin vermez.</p>
+      <div class="pillars">
+        <div class="pillar glass reveal"><svg aria-hidden="true"><use href="#i-lock"/></svg><b>Cihazda kalır</b><p>Sınıflandırma iPhone'da yapılır. Kuralların ve numara listen yalnızca cihazında durur.</p></div>
+        <div class="pillar glass reveal"><svg aria-hidden="true"><use href="#i-cloud-off"/></svg><b>İnternet gerekmez</b><p>Uygulamanın internet kullanan tek bir özelliği yok.</p></div>
+        <div class="pillar glass reveal"><svg aria-hidden="true"><use href="#i-eye-off"/></svg><b>İzleme yok</b><p>Reklam, analitik ve üçüncü taraf SDK yok. Rehberine de erişmez.</p></div>
+        <div class="pillar glass reveal"><svg aria-hidden="true"><use href="#i-user"/></svg><b>Hesap yok</b><p>Kayıt, giriş, e-posta yok. İndir, aç, kullan.</p></div>
+      </div>
+      <div class="label-card glass reveal">
+        <svg aria-hidden="true"><use href="#i-shield"/></svg>
+        <div><b>App Store gizlilik etiketi: Veri Toplanmaz</b><p>Neyi yapıp neyi yapmadığımızı gizlilik politikasında açıkça yazdık.</p></div>
+        <a href="privacy.html">Gizlilik politikasını oku →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="ozellikler">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="kicker" style="--c:var(--sky)">Özellikler</span>
+        <h2>Türkiye'nin spam'ini tanır.<br>Önemli mesajına dokunmaz.</h2>
+        <p class="section-lede">Hazır kural paketleri Türkiye'de bugün gelen spam'e göre yazıldı. Yetmediği yerde kendi kuralını eklersin.</p>
+      </div>
+      <div class="bento">
+        <article class="tile glass span-4 wide-m reveal" style="--c:var(--sky)">
+          <div class="ic"><svg aria-hidden="true"><use href="#i-card"/></svg></div>
+          <h3>Gerçek bildirimler korunur</h3>
+          <p>Doğrulama kodları, banka harcama bildirimleri, abonelik, kargo ve randevu mesajları <b>İşlem</b> klasörüne gider; Finans, Siparişler ve Sağlık gibi alt kategorilere ayrılır. Mesajda spam kelimesi geçse bile tek kullanımlık kod korunur, yeter ki içinde kısaltılmış bir link olmasın.</p>
+          <div class="safe-list">
+            <span><svg aria-hidden="true"><use href="#i-check"/></svg>Banka kodu ve harcama</span>
+            <span><svg aria-hidden="true"><use href="#i-check"/></svg>Üyelik ve abonelik</span>
+            <span><svg aria-hidden="true"><use href="#i-check"/></svg>Kargo ve sipariş</span>
+            <span><svg aria-hidden="true"><use href="#i-check"/></svg>e-Devlet, MHRS, fatura</span>
+          </div>
+        </article>
+        <article class="tile glass span-2 reveal" style="--c:var(--coral)">
+          <div class="ic"><svg aria-hidden="true"><use href="#i-alert"/></svg></div>
+          <h3>Dolandırıcılığa karşı</h3>
+          <p>Gerçek kurumlar seni bir linke yönlendirip ödeme istemez. Kalkan bu kalıbı tanır.</p>
+          <div class="chips"><span class="chip">Sahte HGS cezası</span><span class="chip">Sahte kargo ücreti</span><span class="chip">“Ödemeniz alınamadı”</span><span class="chip">Ödül vaadi</span></div>
+        </article>
+        <article class="tile glass span-2 reveal" style="--c:var(--violet)">
+          <div class="ic"><svg aria-hidden="true"><use href="#i-dice"/></svg></div>
+          <h3>Yasa dışı bahis</h3>
+          <p>Deneme bonusu, “güncel giriş adresi” ve bahis markaları, yazımı değiştirilmiş olsa da yakalanır.</p>
+        </article>
+        <article class="tile glass span-2 reveal" style="--c:var(--amber)">
+          <div class="ic"><svg aria-hidden="true"><use href="#i-tag"/></svg></div>
+          <h3>Reklamlar ayrı klasörde</h3>
+          <p>İYS marka kodu (<span class="mono">B0xx</span>), “SMS RET” ve kampanya mesajları Promosyon'a. Efsane Cuma da dahil.</p>
+        </article>
+        <article class="tile glass span-2 reveal" style="--c:var(--mint)">
+          <div class="ic"><svg aria-hidden="true"><use href="#i-slider"/></svg></div>
+          <h3>6 akıllı paket</h3>
+          <p>Her birini ayrı ayrı açıp kapatabilirsin.</p>
+          <div class="chips"><span class="chip">Akıllı sezgiler</span><span class="chip">Ticari ileti (İYS)</span><span class="chip">Yasa dışı bahis</span><span class="chip">Kredi ve borç</span><span class="chip">Dolandırıcılık</span><span class="chip">İngilizce spam</span></div>
+        </article>
+        <article class="tile glass span-3 reveal" style="--c:var(--coral)">
+          <div class="ic"><svg aria-hidden="true"><use href="#i-phone"/></svg></div>
+          <h3>Aramalarda son söz senin</h3>
+          <p>Tek bir numarayı ya da <span class="mono">0850 222 XX XX</span> gibi 10.000 numaralık bir bloğu tek satırda engelle. Numaralara etiket ver; aradıklarında ekranda “Tele-satış” yazsın.</p>
+          <div class="ring">
+            <svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="var(--coral)" stroke-width="4" stroke-linecap="round" stroke-dasharray="70 94.2" transform="rotate(-90 18 18)"/></svg>
+            <div><b>1.000.000</b><small>numaraya kadar engelleme kapasitesi</small></div>
+          </div>
+        </article>
+        <article class="tile glass span-3 reveal" style="--c:var(--violet)">
+          <div class="ic"><svg aria-hidden="true"><use href="#i-wand"/></svg></div>
+          <h3>Kendi kuralın, tek dokunuşla</h3>
+          <p>Bir mesaj yanlış klasöre mi düştü? Test ekranında <b>“İzin kuralı oluştur”</b> ya da <b>“Engelleme kuralı oluştur”</b>a dokun. Gönderen, kelime, önek ya da regex ile kural yaz; sonucu canlı önizlemede hemen gör.</p>
+        </article>
+        <article class="tile glass span-2 reveal" style="--c:var(--amber)">
+          <div class="ic"><svg aria-hidden="true"><use href="#i-bolt"/></svg></div>
+          <h3>Saldırı modu</h3>
+          <p>Spam yağmuru mu başladı? Belirlediğin süre boyunca filtre en sıkı ayara geçer, süre bitince kendiliğinden kapanır.</p>
+        </article>
+        <article class="tile glass span-2 reveal" style="--c:var(--sky)">
+          <div class="ic"><svg aria-hidden="true"><use href="#i-moon"/></svg></div>
+          <h3>Sessiz saatler</h3>
+          <p>Seçtiğin saatlerde filtre sıkılaşır. Hassasiyeti Hafif, Dengeli ve Sıkı arasından sen seçersin.</p>
+        </article>
+        <article class="tile glass span-2 reveal" style="--c:var(--mint)">
+          <div class="ic"><svg aria-hidden="true"><use href="#i-flask"/></svg></div>
+          <h3>Test ekranı</h3>
+          <p>Herhangi bir mesajı ya da numarayı yapıştır, Kalkan'ın ne yapacağını önceden gör.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREENS -->
+  <section id="ekranlar">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="kicker" style="--c:var(--violet)">Uygulama</span>
+        <h2>iPhone'una yakışır.</h2>
+        <p class="section-lede">iOS 26'da Liquid Glass, önceki sürümlerde buzlu cam yüzeyler. Açık ve koyu modda okunaklı renkler, büyük yazı boyutu ve VoiceOver desteği.</p>
+      </div>
+      <div class="screens" id="screens" tabindex="0" role="region" aria-label="Uygulama ekran görüntüleri">
+        <figure class="shot"><div class="frame"><img src="assets/site/1-karsilama.jpg" width="506" height="1100" loading="lazy" alt="Karşılama ekranı: İstenmeyen SMS ve aramalara son"></div><figcaption><b>Dakikalar içinde hazır</b><small>Kurulum rehberi adım adım gösterir</small></figcaption></figure>
+        <figure class="shot"><div class="frame"><img src="assets/site/2-test-bahis.jpg" width="506" height="1100" loading="lazy" alt="Test ekranı: bahis mesajı Gereksiz klasörüne gidiyor, nedenleri ve puanları listeleniyor"></div><figcaption><b>Bahis → Gereksiz</b><small>Her puanın nedeni görünür</small></figcaption></figure>
+        <figure class="shot"><div class="frame"><img src="assets/site/3-test-kod.jpg" width="506" height="1100" loading="lazy" alt="Test ekranı: doğrulama kodu İşlem klasörüne gidiyor, tek kullanımlık kod korundu"></div><figcaption><b>Kodun korunur</b><small>Doğrulama kodu İşlem'e gider</small></figcaption></figure>
+        <figure class="shot"><div class="frame"><img src="assets/site/8-test-kargo.jpg" width="506" height="1100" loading="lazy" alt="Test ekranı: sahte kargo mesajı Gereksiz klasörüne gidiyor"></div><figcaption><b>Sahte kargo yakalanır</b><small>Link ve ücret talebi birlikte</small></figcaption></figure>
+        <figure class="shot"><div class="frame"><img src="assets/site/4-kurallar.jpg" width="506" height="1100" loading="lazy" alt="Kurallar ekranı: akıllı paketler ve kendi kuralların"></div><figcaption><b>Senin kuralların</b><small>Paketleri aç, kapat, ekle</small></figcaption></figure>
+        <figure class="shot"><div class="frame"><img src="assets/site/5-aramalar.jpg" width="506" height="1100" loading="lazy" alt="Aramalar ekranı: 0850 222 XX XX bloğu ile 10.001 numara engelli"></div><figcaption><b>Numara blokları</b><small>1.000.000 numaraya kadar</small></figcaption></figure>
+      </div>
+      <div class="scroll-hint"><button type="button" data-dir="-1" aria-label="Önceki ekran">←</button><button type="button" data-dir="1" aria-label="Sonraki ekran">→</button></div>
+    </div>
+  </section>
+
+  <!-- FREE -->
+  <section id="ucretsiz">
+    <div class="wrap">
+      <div class="free glass reveal">
+        <div class="price" aria-hidden="true">0<sup>₺</sup></div>
+        <h2>Ücretsiz. Ve öyle kalacak.</h2>
+        <p>Abonelik, deneme süresi, kilitli özellik ya da reklam yok. Kalkan'ın tüm özellikleri ilk günden açık. Satacak bir verimiz de yok, çünkü hiç veri toplamıyoruz.</p>
+        <div class="chips">
+          <span class="chip c" style="--c:var(--mint)">Abonelik yok</span>
+          <span class="chip c" style="--c:var(--sky)">Uygulama içi satın alma yok</span>
+          <span class="chip c" style="--c:var(--violet)">Reklam yok</span>
+          <span class="chip c" style="--c:var(--amber)">Hesap yok</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETUP -->
+  <section id="kurulum">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="kicker" style="--c:var(--mint)">Kurulum</span>
+        <h2>Üç adımda hazır.</h2>
+        <p class="section-lede">Uygulamadaki rehber her adımı ekran ekran gösterir.</p>
+      </div>
+      <div class="steps">
+        <div class="step glass reveal"><h3>Kalkan'ı indir</h3><p>App Store'dan ücretsiz indir ve aç. Hesap açman gerekmez.</p></div>
+        <div class="step glass reveal"><h3>SMS filtresini aç</h3><p><b>Mesaj Filtresi</b> bölümünde Kalkan'ı seç.</p><span class="path">Ayarlar › Uygulamalar › Mesajlar › Bilinmeyen ve İstenmeyen</span></div>
+        <div class="step glass reveal"><h3>Arama engellemeyi aç</h3><p>İki Kalkan anahtarını da aç. Hepsi bu.</p><span class="path">Ayarlar › Uygulamalar › Telefon › Arama Engelleme/No. Belirleme</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="sss">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="kicker" style="--c:var(--amber)">Sık sorulanlar</span>
+        <h2>Aklına takılanlar.</h2>
+      </div>
+      <div class="faq">
+        <details class="glass reveal"><summary>Kalkan gerçekten ücretsiz mi?</summary><p>Evet. Abonelik, uygulama içi satın alma ya da reklam yok. Tüm özellikler herkese açık.</p></details>
+        <details class="glass reveal"><summary>Mesajlarımı okuyor ya da bir yere gönderiyor mu?</summary><p>Hayır. iOS, rehberinde olmayan göndericilerden gelen SMS'i yalnızca karar vermesi için Kalkan'ın filtresine gösterir. Filtre kararı iPhone'unda verir, mesajı kaydetmez ve hiçbir yere göndermez. iOS bu uzantının internete çıkmasına izin vermez.</p></details>
+        <details class="glass reveal"><summary>Banka kodlarım ya da abonelik mesajlarım yanlışlıkla engellenir mi?</summary><p>Kalkan bunu önleyecek şekilde tasarlandı. Doğrulama kodları ve banka, kargo, abonelik, fatura ve kamu hizmeti bildirimleri İşlem klasörüne ayrılır. Bir mesaj yine de yanlış yere düşerse Test ekranına yapıştırıp tek dokunuşla izin kuralı oluşturabilirsin.</p></details>
+        <details class="glass reveal"><summary>Rehberimdeki birinin mesajı filtrelenir mi?</summary><p>Hayır. iOS, kişilerindeki göndericilerin mesajlarını filtre uygulamalarına hiç göstermez.</p></details>
+        <details class="glass reveal"><summary>Neden kaç mesaj engellendiğini göremiyorum?</summary><p>iOS gizlilik gereği filtre uzantısının veri kaydetmesine izin vermez. Filtrelenen mesajlar Mesajlar uygulamasında Filtreler altında durur.</p></details>
+        <details class="glass reveal"><summary>Rehberimdeki bir numarayı neden engelleyemiyorum?</summary><p>iOS, rehberindeki ve yakın zamanda aradığın numaraları hiçbir arama engelleme uygulamasına engelletmez. Rehberindeki birini engellemek için Kişiler'de kişiyi aç ve <b>Bu Arayanı Engelle</b>'ye dokun.</p></details>
+        <details class="glass reveal"><summary>Hangi cihazlarda çalışır?</summary><p>iOS 16 ve sonrasını çalıştıran iPhone'larda. Arayüz Türkçe ve İngilizce.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final">
+    <div class="wrap reveal">
+      <img src="icon.png" alt="Kalkan simgesi" width="104" height="104">
+      <h2>Spam'e karşı kalkanını kaldır.</h2>
+      <p>Ücretsiz indir, birkaç dakikada kur; gerisini Kalkan halletsin.</p>
+      <a class="btn btn-store" href="https://apps.apple.com/tr/app/id6822896067" rel="noopener">
+        <svg aria-hidden="true"><use href="#i-download"/></svg>
+        <span><small>Ücretsiz</small>App Store'dan indir</span>
+      </a>
+    </div>
+  </section>
+
+  <p class="en" lang="en">Kalkan sorts spam, scam and promotional texts on your iPhone and blocks the numbers you choose. Free, no ads, no account; your messages never leave your phone. <a href="https://apps.apple.com/app/id6822896067" rel="noopener">Download on the App Store</a>.</p>
 </main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Mehmet Mutlu · Kalkan</span>
+    <nav aria-label="Alt bağlantılar">
+      <a href="privacy.html">Gizlilik Politikası</a>
+      <a href="support.html">Destek</a>
+      <a href="mailto:destek@mm-apps.com">destek@mm-apps.com</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Verdict presentation, mirroring the app (App/DesignSystem/Presentation.swift).
+  const VERDICT = {
+    allow:       { title: "Gelen Kutusu", color: "var(--mint)",  icon: "i-tray" },
+    junk:        { title: "Gereksiz",     color: "var(--coral)", icon: "i-bin" },
+    promotion:   { title: "Promosyon",    color: "var(--amber)", icon: "i-tag" },
+    transaction: { title: "İşlem",        color: "var(--sky)",   icon: "i-card" },
+  };
+  const THRESHOLD = { junk: 60, promo: 35 }; // "Dengeli" sensitivity
+
+  // Real outputs of MessageClassifier(config: .default) for these exact sender/body pairs (KalkanCore, 1.2.3).
+  // Re-run the classifier and update these if the rule packs change.
+  const SAMPLES = [
+    { label: "Bahis", from: "+90 555 111 22 33", body: "Deneme bonusu 500 TL! Yatırımsız bahis için güncel giriş adresi: ornekbet123.example",
+      v: "junk", junk: 140, promo: 0, reasons: [
+        ["Bahis / casino", "“bahis” · Yasa dışı bahis", 50, "i-dice"],
+        ["Bahis bonusu", "“deneme bonusu” · Yasa dışı bahis", 30, "i-dice"],
+        ["Bahis giriş adresi", "“giris adresi” · Yasa dışı bahis", 35, "i-dice"],
+        ["Bahis markası", "“ornekbet123” · Yasa dışı bahis", 25, "i-dice"]] },
+    { label: "Sahte HGS", from: "+90 532 123 45 67", body: "HGS geçiş ihlaliniz bulunmaktadır. Cezalı geçiş ücretini ödemek için: hgs-odeme.xyz/ode",
+      v: "junk", junk: 95, promo: 0, reasons: [
+        ["Şahıs numarasından link", "“hgs-odeme.xyz/ode” · Akıllı sezgiler", 30, "i-link"],
+        ["Şüpheli alan adı", "“.xyz” · Akıllı sezgiler", 25, "i-link"],
+        ["Sahte HGS / ceza bildirimi", "“hgs” + link · Dolandırıcılık ve oltalama", 40, "i-alert"]] },
+    { label: "Sahte kargo", from: "+90 544 123 45 67", body: "Kargonuz teslim edilemedi. Adres onayı için ek ücret ödeyin: ornek-kargo.xyz/takip",
+      v: "junk", junk: 130, promo: 0, reasons: [
+        ["Şahıs numarasından link", "“ornek-kargo.xyz/takip” · Akıllı sezgiler", 30, "i-link"],
+        ["Şüpheli alan adı", "“.xyz” · Akıllı sezgiler", 25, "i-link"],
+        ["Sahte kargo bildirimi", "“teslim edilemedi” · Dolandırıcılık ve oltalama", 35, "i-alert"],
+        ["Sahte ücret talebi", "“ek ucret” + link · Dolandırıcılık ve oltalama", 40, "i-alert"]] },
+    { label: "Gizlenmiş bahis", from: "+90 533 123 45 67", body: "d€n€m€ b0nusu k@zand1n1z! hemen gir: bit.ly/x1",
+      v: "junk", junk: 150, promo: 0, reasons: [
+        ["Kısaltılmış link", "“bit.ly/x1” · Akıllı sezgiler", 30, "i-link"],
+        ["Şahıs numarasından link", "“bit.ly/x1” · Akıllı sezgiler", 30, "i-link"],
+        ["Bahis bonusu", "“deneme bonusu” · Yasa dışı bahis", 30, "i-dice"],
+        ["Ödül vaadi", "“kazandiniz” · Dolandırıcılık ve oltalama", 30, "i-gift"],
+        ["Aciliyet + link", "“hemen” + link · Dolandırıcılık ve oltalama", 30, "i-alert"]] },
+    { label: "Doğrulama kodu", from: "BANKA", body: "Doğrulama kodunuz: 482913. Bu kodu kimseyle paylaşmayın.",
+      v: "transaction", sub: "Diğer işlemler", junk: 0, promo: 0, reasons: [
+        ["Tek kullanımlık kod korundu", "“dogrulama kodu”", 0, "i-lock"]] },
+    { label: "Banka harcaması", from: "BANKA", body: "Kartınızla 249,90 TL harcama yapıldı. Siz yapmadıysanız 0850 222 00 00'ı arayın.",
+      v: "transaction", sub: "Finans", junk: 0, promo: 0, reasons: [
+        ["İşlem mesajı · Finans", "“harcama”", 0, "i-card"]] },
+    { label: "Kampanya", from: "MARKA", body: "Efsane Cuma başladı! Sepette %30 indirim. SMS RET yazıp 4609'a gönder. B012",
+      v: "promotion", sub: "Teklifler", junk: 0, promo: 120, reasons: [
+        ["İYS marka kodu", "“b012” · Ticari ileti (İYS)", 40, "i-tag"],
+        ["Ticari ileti ret bilgisi", "“sms ret” · Ticari ileti (İYS)", 40, "i-tag"],
+        ["İndirim / kampanya", "“sepette” · Ticari ileti (İYS)", 25, "i-tag"],
+        ["Alışveriş reklamı", "“efsane cuma” · Ticari ileti (İYS)", 15, "i-tag"]] },
+    { label: "Kargo", from: "KARGO", body: "Siparişiniz kargoya verildi. Takip no: 123456789",
+      v: "transaction", sub: "Siparişler", junk: 0, promo: 0, reasons: [
+        ["İşlem mesajı · Siparişler", "“siparisiniz”", 0, "i-card"]] },
+    { label: "Arkadaşın", from: "+90 505 123 45 67", body: "Akşam yemeğe geliyor musun? Annem börek yaptı",
+      v: "allow", junk: 0, promo: 0, reasons: [] },
+  ];
+
+  const el = (tag, attrs = {}, children = []) => {
+    const node = document.createElement(tag);
+    for (const [k, val] of Object.entries(attrs)) {
+      if (k === "text") node.textContent = val;
+      else if (k === "style") node.style.cssText = val;
+      else node.setAttribute(k, val);
+    }
+    node.append(...children);
+    return node;
+  };
+  const icon = (id) => {
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("aria-hidden", "true");
+    const use = document.createElementNS(ns, "use");
+    use.setAttribute("href", "#" + id);
+    svg.append(use);
+    return svg;
+  };
+
+  // ---------- Inspector ----------
+  const samplesBox = document.getElementById("samples");
+  const result = document.getElementById("result");
+
+  function bar(title, value, threshold, color) {
+    const max = Math.max(threshold * 2, value, 1);
+    const fill = el("div", { class: "fill", style: `--bc:${color}` });
+    const node = el("div", { role: "img", "aria-label": `${title}: ${value}, eşik ${threshold}` }, [
+      el("div", { class: "bar-head", "aria-hidden": "true" }, [el("span", { text: title }), el("span", { text: `${value} / ${threshold}` })]),
+      el("div", { class: "track", "aria-hidden": "true" }, [fill, el("div", { class: "mark", style: `left:${(threshold / max) * 100}%` })]),
+    ]);
+    requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = `${Math.min(value / max, 1) * 100}%`; }));
+    return node;
+  }
+
+  function reasonRow(title, detail, weight, ic, color) {
+    return el("li", { style: `--rc:${color}` }, [
+      el("span", { class: "ico" }, [icon(ic)]),
+      el("span", { class: "t" }, [el("b", { text: title }), el("small", { text: detail })]),
+      ...(weight > 0 ? [el("span", { class: "w", text: `+${weight}` })] : []),
+    ]);
+  }
+
+  function show(i) {
+    const s = SAMPLES[i];
+    const v = VERDICT[s.v];
+    samplesBox.querySelectorAll(".sample").forEach((b, j) => b.setAttribute("aria-pressed", String(i === j)));
+    result.style.setProperty("--c", v.color);
+
+    const scoreColor = s.v === "promotion" ? "var(--amber)" : "var(--coral)";
+    const rows = s.reasons.length
+      ? s.reasons.map(([t, d, w, ic]) => reasonRow(t, d, w, ic, w > 0 ? scoreColor : "var(--sky)"))
+      : [reasonRow("Hiçbir spam ya da reklam işareti yok", "Mesaj Gelen Kutusu'nda kalır.", 0, "i-check", "var(--mint)")];
+
+    result.replaceChildren(
+      el("div", { class: "bubble" }, [el("div", { class: "from", text: s.from }), el("p", { text: s.body })]),
+      el("div", { class: "decision" }, [
+        el("div", { class: "badge" }, [icon(v.icon)]),
+        el("div", {}, [el("small", { text: "Bu mesaj gider:" }), el("h3", { text: v.title }), ...(s.sub ? [el("em", { text: s.sub })] : [])]),
+      ]),
+      el("div", { class: "bars" }, [bar("Spam puanı", s.junk, THRESHOLD.junk, "var(--coral)"), bar("Reklam puanı", s.promo, THRESHOLD.promo, "var(--amber)")]),
+      el("div", { class: "reasons" }, [el("h4", { text: "Neden?" }), el("ul", {}, rows)]),
+      el("p", { class: "result-note", text: "Hassasiyet: Dengeli (spam eşiği 60, reklam eşiği 35). Sonuçlar Kalkan'ın gerçek motorundan alındı." }),
+    );
+  }
+
+  SAMPLES.forEach((s, i) => {
+    const b = el("button", { type: "button", class: "sample", style: `--c:${VERDICT[s.v].color}`, "aria-pressed": "false" }, [
+      el("span", { class: "dot" }),
+      el("span", {}, [el("b", { text: s.label }), el("small", { text: "→ " + VERDICT[s.v].title })]),
+    ]);
+    b.addEventListener("click", () => show(i));
+    samplesBox.append(b);
+  });
+  show(0);
+
+  // ---------- Hero phone ----------
+  const feed = document.getElementById("feed");
+  const counts = { allow: 0, junk: 0, promotion: 0, transaction: 0 };
+  const MAX_CARDS = 4;
+  const STEP_MS = 2400;
+  const VERDICT_DELAY_MS = 1250;
+  const LEAVE_MS = 500;
+  const order = [0, 4, 6, 1, 8, 5, 2, 7, 3];
+
+  function messageCard(s, done) {
+    const v = VERDICT[s.v];
+    const card = el("div", { class: "msg" + (done ? " done" : ""), style: `--c:${v.color}` }, [
+      el("div", { class: "from" }, [el("span", { text: s.from }), el("span", { class: "verdict", text: v.title })]),
+      el("div", { class: "text", text: s.body }),
+    ]);
+    if (!done) card.append(el("div", { class: "scan" }));
+    return card;
+  }
+
+  function bump(verdict) {
+    counts[verdict] += 1;
+    const f = document.querySelector(`.folder[data-v="${verdict}"]`);
+    f.querySelector("b").textContent = counts[verdict];
+    f.classList.add("bump");
+    setTimeout(() => f.classList.remove("bump"), 450);
+  }
+
+  if (reduceMotion) {
+    order.slice(0, MAX_CARDS).forEach((i) => { feed.append(messageCard(SAMPLES[i], true)); bump(SAMPLES[i].v); });
+  } else {
+    let n = 0;
+    let timer = null;
+    let visible = false;
+    const tick = () => {
+      const s = SAMPLES[order[n % order.length]];
+      n += 1;
+      const card = messageCard(s, false);
+      feed.prepend(card);
+      setTimeout(() => { card.classList.add("done"); bump(s.v); }, VERDICT_DELAY_MS);
+      const cards = feed.querySelectorAll(".msg:not(.leaving)");
+      if (cards.length > MAX_CARDS) {
+        const last = cards[cards.length - 1];
+        last.classList.add("leaving");
+        setTimeout(() => last.remove(), LEAVE_MS);
+      }
+    };
+    const sync = () => {
+      const run = visible && !document.hidden;
+      if (run && !timer) { tick(); timer = setInterval(tick, STEP_MS); }
+      if (!run && timer) { clearInterval(timer); timer = null; }
+    };
+    document.addEventListener("visibilitychange", sync);
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; sync(); }).observe(feed);
+  }
+
+  // ---------- Decode ----------
+  if (!reduceMotion) {
+    const glyphs = "@€1035$!#*%";
+    const scramble = (node) => {
+      const target = node.textContent;
+      const total = 24;
+      let frame = 0;
+      const run = () => {
+        frame += 1;
+        const shown = Math.floor((frame / total) * target.length);
+        node.textContent = [...target].map((ch, k) => (k < shown || ch === " " ? ch : glyphs[(k + frame) % glyphs.length])).join("");
+        if (frame < total) requestAnimationFrame(run); else node.textContent = target;
+      };
+      run();
+    };
+    const outs = [document.getElementById("dec1"), document.getElementById("dec2")];
+    new IntersectionObserver((entries, obs) => {
+      if (!entries[0].isIntersecting) return;
+      obs.disconnect();
+      outs.forEach((node, k) => setTimeout(() => scramble(node), 250 + k * 380));
+    }, { threshold: .6 }).observe(outs[0]);
+  }
+
+  // ---------- Screens arrows ----------
+  const screens = document.getElementById("screens");
+  document.querySelectorAll(".scroll-hint button").forEach((b) =>
+    b.addEventListener("click", () => screens.scrollBy({ left: Number(b.dataset.dir) * 272, behavior: reduceMotion ? "auto" : "smooth" })));
+
+  // ---------- Reveal ----------
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }), { threshold: .12, rootMargin: "0px 0px -40px 0px" });
+  document.querySelectorAll(".reveal").forEach((n) => io.observe(n));
+})();
+</script>
 </body>
 </html>
