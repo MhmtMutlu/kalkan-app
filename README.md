@@ -103,7 +103,7 @@
 </p>
 
 <p align="center">
-  iOS 26'nın <b>Liquid Glass</b> tasarım dili, nefes alan renk geçişleri ve her iki modda da <b>WCAG AA</b> kontrastlı renk paleti.<br>
+  iOS 26 ve sonrasında <b>Liquid Glass</b>, iOS 16–25'te aynı yerleşimle buzlu cam yüzeyler; nefes alan renk geçişleri ve her iki modda da <b>WCAG AA</b> kontrastlı renk paleti.<br>
   Büyük yazı boyutlarında düzen kendini yeniden kurar; VoiceOver ekranları okur; Hareketi Azalt açıksa animasyonlar durur.
 </p>
 
@@ -142,7 +142,7 @@ flowchart LR
 ## Teknik bakış
 
 <table>
-  <tr><td><b>Platform</b></td><td>iOS 26+, iPhone · Swift 6 · SwiftUI · Liquid Glass</td></tr>
+  <tr><td><b>Platform</b></td><td>iOS 16+, iPhone (iPhone 8 ve sonrası) · Swift 6 · SwiftUI · iOS 26+'da Liquid Glass</td></tr>
   <tr><td><b>SMS filtresi</b></td><td><code>IdentityLookup</code> Message Filter Extension · iOS 16+ işlem/promosyon alt kategorileri</td></tr>
   <tr><td><b>Aramalar</b></td><td>İki <code>CallKit</code> Call Directory uzantısı (engelleme + kimlik) · bellek dostu, parça parça yükleme</td></tr>
   <tr><td><b>Mimari</b></td><td>Arayüzden bağımsız, testli <code>KalkanKit</code> paketi (Core · Phone · Store) · uygulama ve uzantılar aynı motoru paylaşır</td></tr>
